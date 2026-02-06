@@ -1,10 +1,11 @@
-# MacroDroid Webhook Executor - Chrome Extension
+# Webhook Executor - Chrome Extension
 
-A powerful Chrome extension that allows you to set up and execute MacroDroid webhooks with dynamic variables based on the current webpage.
+A powerful Chrome extension that allows you to set up and execute webhooks with dynamic variables based on the current webpage.
 
 ## Features
 
 - ✅ **Multiple Webhooks**: Configure unlimited webhooks
+- ✅ **Popup UI**: Quick access to all webhooks from the extension icon
 - ✅ **Dynamic Variables**: Use variables like `{page_url}`, `{page_title}`, `{page_domain}` in your webhooks
 - ✅ **Context Menu Integration**: Execute webhooks via right-click menu
 - ✅ **Link Support**: Right-click on links to send link URL instead of page URL
@@ -19,15 +20,6 @@ A powerful Chrome extension that allows you to set up and execute MacroDroid web
 
 ## Installation
 
-1. **Download/Clone this repository**
-
-2. **Create Icon Files** (Required before loading):
-   - You need to create three icon files: `icon16.png`, `icon48.png`, and `icon128.png`
-   - These should be simple webhook/automation icons
-   - You can use any icon generator or create your own
-   - Place them in the root directory (`mdExtension/`)
-
-3. **Load Extension in Chrome**:
    - Open Chrome and go to `chrome://extensions/`
    - Enable "Developer mode" (toggle in top-right corner)
    - Click "Load unpacked"
@@ -153,12 +145,24 @@ Show in Context Menu: ✓
 
 ### Executing Webhooks
 
+#### Via Extension Popup:
+1. Click the extension icon in the Chrome toolbar
+2. You'll see a list of all configured webhooks
+3. Click the ▶️ play button next to any webhook to execute it
+4. Click the ⚙️ settings icon to configure webhooks
+
+**Benefits:**
+- Quick access to all webhooks
+- No need to right-click on pages
+- Visual list with webhook details
+- One-click execution
+
 #### Via Context Menu:
 1. Right-click anywhere on a webpage
 2. If only one webhook has "Show in Context Menu" enabled:
    - The webhook will appear directly in the context menu
 3. If multiple webhooks are enabled:
-   - Look for "MacroDroid Webhooks" submenu
+   - Look for "Webhooks" submenu
    - Select the webhook you want to execute
 
 #### Right-Click on Links:
@@ -187,11 +191,22 @@ Popups appear in the top-right corner and auto-dismiss after 3 seconds.
 - This will show you what data will be sent with example values
 - Preview the loading text and response check configuration
 
-## Context Menu Behavior
+## Quick Access
 
+### Extension Popup (New!)
+Click the extension icon to see a beautiful popup with:
+- List of all configured webhooks
+- One-click execution with ▶️ play buttons
+- Direct access to settings via ⚙️ icon
+- Dark mode interface
+- Quick and convenient - no need to right-click!
+
+### Context Menu Integration
+
+**Context Menu Behavior:**
 - **0 webhooks enabled**: No context menu items
 - **1 webhook enabled**: Shows directly as "Webhook Name" 
-- **2+ webhooks enabled**: Shows under "MacroDroid Webhooks" submenu
+- **2+ webhooks enabled**: Shows under "Webhooks" submenu
 
 ## Tips
 
@@ -233,6 +248,9 @@ mdExtension/
 ├── manifest.json          # Extension configuration
 ├── background.js          # Service worker for context menus and webhooks
 ├── content.js             # Content script for page data
+├── popup.html             # Extension popup UI
+├── popup.js               # Popup logic
+├── popup.css              # Popup styling
 ├── options.html           # Options page HTML
 ├── options.js             # Options page JavaScript
 ├── options.css            # Options page styling
@@ -262,5 +280,3 @@ For issues or questions, please check:
 3. Verify your webhook endpoint is working correctly
 
 ---
-
-**Note**: Remember to create the icon files (`icon16.png`, `icon48.png`, `icon128.png`) before loading the extension!

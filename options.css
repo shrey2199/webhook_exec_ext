@@ -542,3 +542,61 @@ form {
 ::-webkit-scrollbar-thumb:hover {
   background: #5f6368;
 }
+
+/* Page Footer */
+.page-footer {
+  margin-top: 40px;
+  padding: 30px;
+  background: #2d2d30;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.page-footer .about-section {
+  text-align: center;
+}
+
+.page-footer .about-section h3 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+}
+
+.page-footer .about-section p {
+  margin: 8px 0;
+  color: var(--text-secondary);
+}
+
+.page-footer .about-section .version {
+  font-size: 0.9em;
+  font-family: 'Courier New', monospace;
+  color: #9aa0a6;
+}
+
+.page-footer .about-section .creator {
+  font-size: 1.1em;
+  margin: 15px 0;
+}
+
+.page-footer .about-section .creator strong {
+  color: #4285f4;
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.page-footer .about-section .links {
+  margin-top: 15px;
+}
+
+.page-footer .about-section .links a {
+  color: #4285f4;
+  text-decoration: none;
+  margin: 0 10px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.page-footer .about-section .links a:hover {
+  color: #5a95f5;
+  text-decoration: underline;
+}

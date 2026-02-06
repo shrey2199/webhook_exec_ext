@@ -3,13 +3,18 @@
 let webhooks = [];
 let pageContext = {};
 
+// Initialize extension - this runs every time the service worker starts
+initialize();
+
 // Load webhooks from storage on startup
 chrome.runtime.onStartup.addListener(() => {
-  loadWebhooksAndUpdateMenu();
+  console.log('Extension startup');
+  initialize();
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  loadWebhooksAndUpdateMenu();
+  console.log('Extension installed/updated');
+  initialize();
 });
 
 // Listen for storage changes
@@ -19,25 +24,44 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
-// Listen for messages from content script
+// Listen for messages from content script and popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'PAGE_CONTEXT') {
     pageContext[sender.tab.id] = request.context;
+  } else if (request.type === 'EXECUTE_WEBHOOK') {
+    // Handle webhook execution from popup
+    handlePopupWebhookExecution(request.webhookId, request.tabId);
+    sendResponse({ success: true });
   }
+  return true; // Keep message channel open for async response
 });
 
-async function loadWebhooksAndUpdateMenu() {
-  const data = await chrome.storage.local.get('webhooks');
-  webhooks = data.webhooks || [];
-  updateContextMenu();
+// Initialize the extension
+async function initialize() {
+  console.log('Initializing extension...');
+  await loadWebhooksAndUpdateMenu();
 }
 
-function updateContextMenu() {
-  // Remove all existing context menu items
-  chrome.contextMenus.removeAll(() => {
+async function loadWebhooksAndUpdateMenu() {
+  try {
+    const data = await chrome.storage.local.get('webhooks');
+    webhooks = data.webhooks || [];
+    console.log('Loaded webhooks:', webhooks.length);
+    await updateContextMenu();
+  } catch (error) {
+    console.error('Error loading webhooks:', error);
+  }
+}
+
+async function updateContextMenu() {
+  try {
+    // Remove all existing context menu items
+    await chrome.contextMenus.removeAll();
+    
     const contextMenuWebhooks = webhooks.filter(wh => wh.showInContextMenu);
     
     if (contextMenuWebhooks.length === 0) {
+      console.log('No webhooks to show in context menu');
       return;
     }
     
@@ -49,11 +73,12 @@ function updateContextMenu() {
         title: webhook.name || 'Execute Webhook',
         contexts: ['all']
       });
+      console.log('Created single context menu item');
     } else {
       // Create parent menu
       chrome.contextMenus.create({
         id: 'webhook_parent',
-        title: 'MacroDroid Webhooks',
+        title: 'Webhooks',
         contexts: ['all']
       });
       
@@ -66,22 +91,42 @@ function updateContextMenu() {
           contexts: ['all']
         });
       });
+      console.log(`Created context menu with ${contextMenuWebhooks.length} webhooks`);
     }
-  });
+  } catch (error) {
+    console.error('Error updating context menu:', error);
+  }
 }
 
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  console.log('Context menu clicked:', info.menuItemId);
+  
+  // Reload webhooks if empty (service worker may have restarted)
+  if (webhooks.length === 0) {
+    console.log('Reloading webhooks...');
+    await loadWebhooksAndUpdateMenu();
+  }
+  
   const webhookId = info.menuItemId.toString().replace('webhook_', '');
   const webhook = webhooks.find(wh => wh.id === webhookId);
   
   if (webhook) {
     // Pass link URL if available (when right-clicking on a link)
     await executeWebhook(webhook, tab, info.linkUrl);
+  } else {
+    console.error('Webhook not found:', webhookId);
   }
 });
 
 async function executeWebhook(webhook, tab, linkUrl = null) {
+  console.log('Executing webhook:', webhook.name, 'on tab:', tab?.id);
+  
+  if (!tab || !tab.id) {
+    console.error('Invalid tab for webhook execution');
+    return;
+  }
+  
   try {
     // Show loading popup
     await showPopup(tab.id, webhook.loadingText || 'Executing webhook...', 'loading');
@@ -208,7 +253,15 @@ function getJsonPathValue(obj, path) {
 }
 
 async function showPopup(tabId, message, type) {
+  if (!tabId) {
+    console.error('Invalid tabId for showPopup');
+    return;
+  }
+  
   try {
+    // Check if tab still exists
+    await chrome.tabs.get(tabId);
+    
     await chrome.scripting.executeScript({
       target: { tabId: tabId },
       func: (msg, popupType) => {
@@ -313,7 +366,10 @@ async function getPageContext(tab, linkUrl = null) {
     selected_text: ''
   };
   
-  if (!tab) return context;
+  if (!tab) {
+    console.warn('No tab provided to getPageContext');
+    return context;
+  }
   
   try {
     // Use link URL if provided (from context menu), otherwise use tab URL
@@ -322,19 +378,28 @@ async function getPageContext(tab, linkUrl = null) {
     context.page_title = tab.title || '';
     
     if (urlToUse) {
-      const url = new URL(urlToUse);
-      context.page_domain = url.hostname;
-      context.page_protocol = url.protocol.replace(':', '');
+      try {
+        const url = new URL(urlToUse);
+        context.page_domain = url.hostname;
+        context.page_protocol = url.protocol.replace(':', '');
+      } catch (e) {
+        console.warn('Invalid URL:', urlToUse);
+      }
     }
     
     // Try to get selected text from content script
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: () => window.getSelection().toString()
-    });
-    
-    if (results && results[0]) {
-      context.selected_text = results[0].result || '';
+    // This may fail on restricted pages (chrome://, etc.)
+    try {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => window.getSelection().toString()
+      });
+      
+      if (results && results[0]) {
+        context.selected_text = results[0].result || '';
+      }
+    } catch (error) {
+      console.log('Could not get selected text (may be restricted page):', error.message);
     }
     
   } catch (error) {
@@ -363,4 +428,47 @@ function substituteVariables(text, context) {
   result = result.replace(/\{datetime\}/g, now.toISOString());
   
   return result;
+}
+
+async function handlePopupWebhookExecution(webhookId, tabId) {
+  console.log('Executing webhook from popup:', webhookId);
+  const webhook = webhooks.find(wh => wh.id === webhookId);
+  if (!webhook) {
+    console.error('Webhook not found:', webhookId);
+    return;
+  }
+  
+  try {
+    const tab = await chrome.tabs.get(tabId);
+    await executeWebhook(webhook, tab);
+  } catch (error) {
+    console.error('Error executing webhook from popup:', error);
+    // Try to show error notification
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        func: (msg) => {
+          const popup = document.createElement('div');
+          popup.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 999999;
+            font-family: sans-serif;
+          `;
+          popup.textContent = msg;
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 3000);
+        },
+        args: [`Error: ${error.message}`]
+      });
+    } catch (e) {
+      console.error('Could not show error notification:', e);
+    }
+  }
 }

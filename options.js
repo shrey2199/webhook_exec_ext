@@ -41,7 +41,10 @@ function setupEventListeners() {
 
   // Add header/param buttons
   document.getElementById('addHeaderBtn').addEventListener('click', () => addKeyValuePair('headersList'));
-  document.getElementById('addParamBtn').addEventListener('click', () => addKeyValuePair('paramsList'));
+  document.getElementById('addParamBtn').addEventListener('click', () => {
+    addKeyValuePair('paramsList');
+    setTimeout(updateUrlPreview, 100);
+  });
   
   // Response check toggle
   document.getElementById('enableResponseCheck').addEventListener('change', (e) => {
@@ -54,10 +57,6 @@ function setupEventListeners() {
   // URL preview listeners
   document.getElementById('webhookUrl').addEventListener('input', updateUrlPreview);
   document.getElementById('webhookUrl').addEventListener('change', updateUrlPreview);
-  document.getElementById('addParamBtn').addEventListener('click', () => {
-    addKeyValuePair('paramsList');
-    setTimeout(updateUrlPreview, 100);
-  });
 }
 
 function renderWebhooksList() {

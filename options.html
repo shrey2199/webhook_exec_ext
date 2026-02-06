@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MacroDroid Webhook Executor - Settings</title>
+  <title>Webhook Executor - Settings</title>
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>MacroDroid Webhook Executor</h1>
+      <h1>Webhook Executor</h1>
       <p class="subtitle">Configure your webhooks with dynamic variables</p>
     </header>
 
@@ -71,6 +71,18 @@
         </div>
       </aside>
     </div>
+    
+    <footer class="page-footer">
+      <div class="about-section">
+        <h3>About</h3>
+        <p>Webhook Executor - Chrome Extension</p>
+        <p class="version">Version 1.0.0</p>
+        <p class="creator">Made with ❤️ by <strong>Shreyansh</strong></p>
+        <p class="links">
+          <a href="https://github.com/shrey2199/webhook_exec_ext" target="_blank" rel="noopener">GitHub</a>
+        </p>
+      </div>
+    </footer>
   </div>
 
   <!-- Webhook Modal -->
@@ -92,7 +104,7 @@
         <div class="form-group">
           <label for="webhookUrl">URL *</label>
           <input type="url" id="webhookUrl" placeholder="https://api.example.com/webhook" required>
-          <small>Tip: You can use variables like https://api.example.com/log?site={cur_web}</small>
+          <small>Tip: You can use variables like https://api.example.com/log?site={page_domain}</small>
         </div>
 
         <div class="form-group">
@@ -116,12 +128,12 @@
           <label>URL Parameters</label>
           <div id="paramsList" class="key-value-list"></div>
           <button type="button" class="btn btn-small" id="addParamBtn">+ Add Parameter</button>
-          <small>Example: Key: "webshared", Value: "{cur_web}"</small>
+          <small>Example: Key: "site", Value: "{page_domain}"</small>
         </div>
 
         <div class="form-group">
           <label for="webhookPayload">Payload (for POST/PUT/PATCH)</label>
-          <textarea id="webhookPayload" rows="6" placeholder='{"site": "{cur_web}", "url": "{page_url}", "title": "{page_title}"}'></textarea>
+          <textarea id="webhookPayload" rows="6" placeholder='{"site": "{page_domain}", "url": "{page_url}", "title": "{page_title}"}'></textarea>
           <small>Use JSON format with variables</small>
         </div>
 

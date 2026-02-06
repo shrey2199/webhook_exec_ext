@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "MacroDroid Webhook Executor",
+  "name": "Webhook Executor",
   "version": "1.0.0",
-  "description": "Execute MacroDroid webhooks with custom parameters from any webpage",
+  "description": "Execute webhooks with custom parameters from any webpage",
   "permissions": [
     "storage",
     "contextMenus",
@@ -15,6 +15,15 @@
   ],
   "background": {
     "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    },
+    "default_title": "Webhook Executor"
   },
   "options_page": "options.html",
   "icons": {
