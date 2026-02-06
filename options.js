@@ -323,10 +323,15 @@ async function testWebhook(id) {
     
     let responseCheckMsg = '';
     if (webhook.responseCheck && webhook.responseCheck.enabled) {
-      responseCheckMsg = `\\n\\nResponse Check:\\n- Type: ${webhook.responseCheck.type}\\n- Expected: ${webhook.responseCheck.value}`;
+      responseCheckMsg = `\n\nResponse Check:\n- Type: ${webhook.responseCheck.type}\n- Expected: ${webhook.responseCheck.value}`;
     }
     
-    const message = `Test Webhook: ${webhook.name}\\n\\nURL: ${testInfo.url}\\nMethod: ${testInfo.method}\\nLoading Text: "${testInfo.loadingText}"${responseCheckMsg}\\n\\nNote: This is a preview with example values. The actual webhook will use real page data when executed.\\n\\nClick OK to see the loading popup (test execution).`;
+    let paramsMsg = '';
+    if (testInfo.params.length > 0) {
+      paramsMsg = '\n\nParams: ' + testInfo.params.map(p => `${p.key}=${p.value}`).join(', ');
+    }
+    
+    const message = `Test Webhook: ${webhook.name}\n\nURL: ${testInfo.url}\nMethod: ${testInfo.method}${paramsMsg}\nLoading Text: "${testInfo.loadingText}"${responseCheckMsg}\n\nNote: This is a preview with example values. The actual webhook will use real page data when executed.\n\nClick OK to see the loading popup (test execution).`;
     
     if (confirm(message)) {
       showNotification(`Test: ${testInfo.loadingText}`);
@@ -421,27 +426,65 @@ function updateResponseHint() {
 }
 
 function showNotification(message) {
-  // Simple notification - could be enhanced with a toast system
+  // Remove any existing notification
+  const existing = document.querySelector('.webhook-notification');
+  if (existing) {
+    existing.remove();
+  }
+  
   const notification = document.createElement('div');
-  notification.className = 'notification';
+  notification.className = 'webhook-notification';
   notification.textContent = message;
   notification.style.cssText = `
     position: fixed;
     top: 20px;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     background: #4CAF50;
     color: white;
-    padding: 15px 20px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     z-index: 10000;
-    animation: slideIn 0.3s ease;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    animation: slideInDown 0.3s ease;
   `;
+  
+  // Add animation keyframes if not already present
+  if (!document.getElementById('webhook-notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'webhook-notification-styles';
+    style.textContent = `
+      @keyframes slideInDown {
+        from {
+          transform: translate(-50%, -100px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(-50%);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOutUp {
+        from {
+          transform: translateX(-50%);
+          opacity: 1;
+        }
+        to {
+          transform: translate(-50%, -100px);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
   
   document.body.appendChild(notification);
   
   setTimeout(() => {
-    notification.style.animation = 'slideOut 0.3s ease';
+    notification.style.animation = 'slideOutUp 0.3s ease';
     setTimeout(() => notification.remove(), 300);
   }, 3000);
 }

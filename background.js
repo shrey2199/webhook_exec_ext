@@ -277,7 +277,8 @@ async function showPopup(tabId, message, type) {
         popup.style.cssText = `
           position: fixed;
           top: 20px;
-          right: 20px;
+          left: 50%;
+          transform: translateX(-50%);
           background: ${popupType === 'success' ? '#4CAF50' : popupType === 'error' ? '#f44336' : '#2196F3'};
           color: white;
           padding: 16px 24px;
@@ -288,7 +289,7 @@ async function showPopup(tabId, message, type) {
           font-size: 14px;
           font-weight: 500;
           max-width: 400px;
-          animation: slideInRight 0.3s ease;
+          animation: slideInDown 0.3s ease;
           display: flex;
           align-items: center;
           gap: 12px;
@@ -316,23 +317,23 @@ async function showPopup(tabId, message, type) {
           const style = document.createElement('style');
           style.id = 'macrodroid-popup-styles';
           style.textContent = `
-            @keyframes slideInRight {
+            @keyframes slideInDown {
               from {
-                transform: translateX(400px);
+                transform: translate(-50%, -100px);
                 opacity: 0;
               }
               to {
-                transform: translateX(0);
+                transform: translateX(-50%);
                 opacity: 1;
               }
             }
-            @keyframes slideOutRight {
+            @keyframes slideOutUp {
               from {
-                transform: translateX(0);
+                transform: translateX(-50%);
                 opacity: 1;
               }
               to {
-                transform: translateX(400px);
+                transform: translate(-50%, -100px);
                 opacity: 0;
               }
             }
@@ -345,7 +346,7 @@ async function showPopup(tabId, message, type) {
         // Auto-remove after delay (only for non-loading popups)
         if (popupType !== 'loading') {
           setTimeout(() => {
-            popup.style.animation = 'slideOutRight 0.3s ease';
+            popup.style.animation = 'slideOutUp 0.3s ease';
             setTimeout(() => popup.remove(), 300);
           }, 3000);
         }
