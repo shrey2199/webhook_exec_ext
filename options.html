@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MacroDroid Webhook Executor - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>MacroDroid Webhook Executor</h1>
+      <p class="subtitle">Configure your webhooks with dynamic variables</p>
+    </header>
+
+    <div class="main-content">
+      <!-- Webhooks List Section -->
+      <section class="webhooks-section">
+        <div class="section-header">
+          <h2>Your Webhooks</h2>
+          <button id="addWebhookBtn" class="btn btn-primary">+ Add Webhook</button>
+        </div>
+        
+        <div id="webhooksList" class="webhooks-list">
+          <!-- Webhook items will be dynamically added here -->
+        </div>
+      </section>
+
+      <!-- Variables Reference Section -->
+      <aside class="variables-section">
+        <h2>Available Variables</h2>
+        <p class="info-text">Use these variables in your webhooks using the <code>{var_name}</code> syntax</p>
+        
+        <div class="variables-list">
+          <div class="variable-item">
+            <code>{page_url}</code>
+            <span class="variable-desc">Full page URL (or clicked link URL)</span>
+          </div>
+          <div class="variable-item">
+            <code>{page_title}</code>
+            <span class="variable-desc">Page title</span>
+          </div>
+          <div class="variable-item">
+            <code>{page_domain}</code>
+            <span class="variable-desc">Page domain</span>
+          </div>
+          <div class="variable-item">
+            <code>{page_protocol}</code>
+            <span class="variable-desc">Protocol (http/https)</span>
+          </div>
+          <div class="variable-item">
+            <code>{selected_text}</code>
+            <span class="variable-desc">Currently selected text on page</span>
+          </div>
+          <div class="variable-item">
+            <code>{timestamp}</code>
+            <span class="variable-desc">Unix timestamp (milliseconds)</span>
+          </div>
+          <div class="variable-item">
+            <code>{date}</code>
+            <span class="variable-desc">Current date (YYYY-MM-DD)</span>
+          </div>
+          <div class="variable-item">
+            <code>{time}</code>
+            <span class="variable-desc">Current time (HH:MM:SS)</span>
+          </div>
+          <div class="variable-item">
+            <code>{datetime}</code>
+            <span class="variable-desc">ISO 8601 datetime</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Webhook Modal -->
+  <div id="webhookModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Webhook</h2>
+        <button class="close-btn" id="closeModal">&times;</button>
+      </div>
+      
+      <form id="webhookForm">
+        <input type="hidden" id="webhookId">
+        
+        <div class="form-group">
+          <label for="webhookName">Webhook Name *</label>
+          <input type="text" id="webhookName" placeholder="My Webhook" required>
+        </div>
+
+        <div class="form-group">
+          <label for="webhookUrl">URL *</label>
+          <input type="url" id="webhookUrl" placeholder="https://api.example.com/webhook" required>
+          <small>Tip: You can use variables like https://api.example.com/log?site={cur_web}</small>
+        </div>
+
+        <div class="form-group">
+          <label for="webhookMethod">HTTP Method</label>
+          <select id="webhookMethod">
+            <option value="POST">POST</option>
+            <option value="GET">GET</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Headers</label>
+          <div id="headersList" class="key-value-list"></div>
+          <button type="button" class="btn btn-small" id="addHeaderBtn">+ Add Header</button>
+        </div>
+
+        <div class="form-group">
+          <label>URL Parameters</label>
+          <div id="paramsList" class="key-value-list"></div>
+          <button type="button" class="btn btn-small" id="addParamBtn">+ Add Parameter</button>
+          <small>Example: Key: "webshared", Value: "{cur_web}"</small>
+        </div>
+
+        <div class="form-group">
+          <label for="webhookPayload">Payload (for POST/PUT/PATCH)</label>
+          <textarea id="webhookPayload" rows="6" placeholder='{"site": "{cur_web}", "url": "{page_url}", "title": "{page_title}"}'></textarea>
+          <small>Use JSON format with variables</small>
+        </div>
+
+        <div class="form-group">
+          <label for="loadingText">Loading Text</label>
+          <input type="text" id="loadingText" placeholder="Executing webhook..." value="Executing webhook...">
+          <small>Text shown while webhook is executing</small>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" id="enableResponseCheck">
+            <span>Enable Response Check</span>
+          </label>
+        </div>
+
+        <div id="responseCheckOptions" class="response-check-section" style="display: none;">
+          <div class="form-group">
+            <label for="responseType">Response Type</label>
+            <select id="responseType">
+              <option value="status_code">HTTP Status Code</option>
+              <option value="text_contains">Response Contains Text</option>
+              <option value="json_path">JSON Path Value</option>
+            </select>
+            <small>How to check if the webhook was successful</small>
+          </div>
+
+          <div class="form-group">
+            <label for="responseValue">Expected Value</label>
+            <input type="text" id="responseValue" placeholder="200">
+            <small id="responseValueHint">e.g., 200 for status code, "success" for text, or path like "status"</small>
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" id="showInContextMenu">
+            <span>Show in right-click context menu</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>URL Preview</label>
+          <div id="urlPreview" class="url-preview">
+            <code>Configure URL and params to see preview</code>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Webhook</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

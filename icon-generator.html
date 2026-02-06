@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Icon Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+      background: #f0f0f0;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .instructions {
+      text-align: left;
+      margin: 20px 0;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 5px;
+    }
+    canvas {
+      border: 2px solid #ddd;
+      margin: 20px 10px;
+      cursor: pointer;
+    }
+    button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:hover {
+      background: #357ae8;
+    }
+    .icons-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 30px 0;
+    }
+    .icon-wrapper {
+      margin: 10px;
+    }
+    .icon-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔗 Extension Icon Generator</h1>
+    
+    <div class="instructions">
+      <h3>Instructions:</h3>
+      <ol>
+        <li>Click each icon below to download it</li>
+        <li>Save them to your <code>mdExtension</code> folder</li>
+        <li>Name them exactly as: <code>icon16.png</code>, <code>icon48.png</code>, <code>icon128.png</code></li>
+        <li>Load the extension in Chrome</li>
+      </ol>
+    </div>
+
+    <div class="icons-container">
+      <div class="icon-wrapper">
+        <canvas id="icon16" width="16" height="16"></canvas>
+        <div class="icon-label">16x16</div>
+      </div>
+      <div class="icon-wrapper">
+        <canvas id="icon48" width="48" height="48"></canvas>
+        <div class="icon-label">48x48</div>
+      </div>
+      <div class="icon-wrapper">
+        <canvas id="icon128" width="128" height="128"></canvas>
+        <div class="icon-label">128x128</div>
+      </div>
+    </div>
+
+    <button onclick="downloadAll()">Download All Icons</button>
+  </div>
+
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      
+      // Background
+      ctx.fillStyle = '#4285f4';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Webhook symbol (chain link icon)
+      ctx.strokeStyle = 'white';
+      ctx.fillStyle = 'white';
+      ctx.lineWidth = Math.max(2, size / 20);
+      
+      const padding = size * 0.2;
+      const linkSize = size * 0.25;
+      
+      // Left link
+      ctx.beginPath();
+      ctx.arc(padding + linkSize, size / 2, linkSize, Math.PI * 0.5, Math.PI * 1.5);
+      ctx.stroke();
+      
+      // Right link
+      ctx.beginPath();
+      ctx.arc(size - padding - linkSize, size / 2, linkSize, -Math.PI * 0.5, Math.PI * 0.5);
+      ctx.stroke();
+      
+      // Connecting line
+      ctx.beginPath();
+      ctx.moveTo(padding + linkSize, size / 2 - linkSize * 0.5);
+      ctx.lineTo(size - padding - linkSize, size / 2 - linkSize * 0.5);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(padding + linkSize, size / 2 + linkSize * 0.5);
+      ctx.lineTo(size - padding - linkSize, size / 2 + linkSize * 0.5);
+      ctx.stroke();
+    }
+
+    // Draw all icons
+    drawIcon(document.getElementById('icon16'), 16);
+    drawIcon(document.getElementById('icon48'), 48);
+    drawIcon(document.getElementById('icon128'), 128);
+
+    // Click to download individual icons
+    document.getElementById('icon16').addEventListener('click', () => downloadIcon('icon16', 16));
+    document.getElementById('icon48').addEventListener('click', () => downloadIcon('icon48', 48));
+    document.getElementById('icon128').addEventListener('click', () => downloadIcon('icon128', 128));
+
+    function downloadIcon(id, size) {
+      const canvas = document.getElementById(id);
+      const link = document.createElement('a');
+      link.download = `${id}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function downloadAll() {
+      setTimeout(() => downloadIcon('icon16', 16), 100);
+      setTimeout(() => downloadIcon('icon48', 48), 300);
+      setTimeout(() => downloadIcon('icon128', 128), 500);
+      alert('All icons will be downloaded. Make sure to save them in your mdExtension folder!');
+    }
+  </script>
+</body>
+</html>
