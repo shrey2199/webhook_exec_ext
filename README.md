@@ -18,6 +18,17 @@ A powerful Chrome extension that allows you to set up and execute webhooks with 
 - ✅ **Visual Popups**: Beautiful in-page notifications for loading and success states
 - ✅ **Dark Mode UI**: Easy on the eyes with a modern dark interface
 
+## Screenshots
+
+### Extension Popup
+![Extension Popup](screenshots/SS%201.png)
+
+### Extension Settings
+![Extension Settings](screenshots/SS%202.png)
+
+### Webhook Configuration
+![Webhook Configuration](screenshots/SS%203.png)
+
 ## Installation
 
    - Open Chrome and go to `chrome://extensions/`
@@ -194,6 +205,7 @@ Popups appear in the top-right corner and auto-dismiss after 3 seconds.
 ## Quick Access
 
 ### Extension Popup (New!)
+
 Click the extension icon to see a beautiful popup with:
 - List of all configured webhooks
 - One-click execution with ▶️ play buttons
