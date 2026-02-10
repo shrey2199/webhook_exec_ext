@@ -25,6 +25,7 @@
 - ✅ **Response Validation**: Configure response checks to verify successful execution
 - ✅ **Visual Popups**: Beautiful in-page notifications for loading and success states
 - ✅ **Dark Mode UI**: Easy on the eyes with a modern dark interface
+- ✅ **Backup & Restore**: Export and import your webhook configurations easily
 
 ## Screenshots
 
@@ -233,6 +234,40 @@ Click the extension icon to see a beautiful popup with:
 - **0 webhooks enabled**: No context menu items
 - **1 webhook enabled**: Shows directly as "Webhook Name" 
 - **2+ webhooks enabled**: Shows under "Webhooks" submenu
+
+## Backup & Restore
+
+Keep your webhook configurations safe and transfer them between browsers or devices.
+
+### Creating a Backup
+
+In the Options page, click the **💾 Backup** dropdown button to see two options:
+
+1. **📋 Copy JSON** - Copies your webhook configuration to clipboard as JSON
+   - Perfect for quick sharing or temporary storage
+   - Includes all webhook settings and metadata
+   
+2. **💾 Download File** - Downloads a backup file to your computer
+   - Named with current date: `webhook-executor-backup-2026-02-11.json`
+   - Safe storage for long-term backup
+
+### Restoring from Backup
+
+Click the **📥 Restore** dropdown button to see restore options:
+
+1. **📄 Paste JSON** - Restore from JSON in your clipboard
+   - Quick restore if you copied JSON earlier
+   - Validates JSON format before restoring
+   
+2. **📁 Upload File** - Select and restore from a backup file
+   - Browse and select your previously downloaded backup file
+   - Supports `.json` files only
+
+**Important Notes:**
+- Restoring will **replace all current webhooks** with the ones from the backup
+- You'll see a confirmation dialog showing how many webhooks will be restored
+- The backup includes webhook name, URL, method, headers, parameters, payload, response checks, and all settings
+- Backup format includes export date and version for easy tracking
 
 ## Tips
 

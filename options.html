@@ -18,65 +18,37 @@
       <section class="webhooks-section">
         <div class="section-header">
           <h2>Your Webhooks</h2>
-          <button id="addWebhookBtn" class="btn btn-primary">+ Add Webhook</button>
+          <div class="header-actions">
+            <div class="dropdown">
+              <button id="backupBtn" class="btn btn-secondary dropdown-btn">💾 Backup ▼</button>
+              <div id="backupDropdown" class="dropdown-content">
+                <button id="copyJsonBtn" class="dropdown-item">📋 Copy JSON</button>
+                <button id="downloadBackupBtn" class="dropdown-item">💾 Download File</button>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button id="restoreBtn" class="btn btn-secondary dropdown-btn">📥 Restore ▼</button>
+              <div id="restoreDropdown" class="dropdown-content">
+                <button id="pasteJsonBtn" class="dropdown-item">📄 Paste JSON</button>
+                <button id="uploadBackupBtn" class="dropdown-item">📁 Upload File</button>
+              </div>
+              <input type="file" id="backupFileInput" accept=".json" style="display: none;">
+            </div>
+            <button id="addWebhookBtn" class="btn btn-primary">+ Add Webhook</button>
+          </div>
         </div>
         
         <div id="webhooksList" class="webhooks-list">
           <!-- Webhook items will be dynamically added here -->
         </div>
       </section>
-
-      <!-- Variables Reference Section -->
-      <aside class="variables-section">
-        <h2>Available Variables</h2>
-        <p class="info-text">Use these variables in your webhooks using the <code>{var_name}</code> syntax</p>
-        
-        <div class="variables-list">
-          <div class="variable-item">
-            <code>{page_url}</code>
-            <span class="variable-desc">Full page URL (or clicked link URL)</span>
-          </div>
-          <div class="variable-item">
-            <code>{page_title}</code>
-            <span class="variable-desc">Page title</span>
-          </div>
-          <div class="variable-item">
-            <code>{page_domain}</code>
-            <span class="variable-desc">Page domain</span>
-          </div>
-          <div class="variable-item">
-            <code>{page_protocol}</code>
-            <span class="variable-desc">Protocol (http/https)</span>
-          </div>
-          <div class="variable-item">
-            <code>{selected_text}</code>
-            <span class="variable-desc">Currently selected text on page</span>
-          </div>
-          <div class="variable-item">
-            <code>{timestamp}</code>
-            <span class="variable-desc">Unix timestamp (milliseconds)</span>
-          </div>
-          <div class="variable-item">
-            <code>{date}</code>
-            <span class="variable-desc">Current date (YYYY-MM-DD)</span>
-          </div>
-          <div class="variable-item">
-            <code>{time}</code>
-            <span class="variable-desc">Current time (HH:MM:SS)</span>
-          </div>
-          <div class="variable-item">
-            <code>{datetime}</code>
-            <span class="variable-desc">ISO 8601 datetime</span>
-          </div>
-        </div>
-      </aside>
     </div>
     
     <footer class="page-footer">
       <div class="about-section">
         <h3>About</h3>
         <p>Webhook Executor - Browser Extension</p>
-        <p class="version">Version 1.0.0</p>
+        <p class="version">Version 1.1.0</p>
         <p class="creator">Made with ❤️ by <strong>Shreyansh</strong></p>
         <p class="links">
           <a href="https://github.com/shrey2199/webhook_exec_ext" target="_blank" rel="noopener">GitHub</a>
@@ -87,10 +59,15 @@
 
   <!-- Webhook Modal -->
   <div id="webhookModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" id="mainModalContent">
       <div class="modal-header">
         <h2 id="modalTitle">Add Webhook</h2>
-        <button class="close-btn" id="closeModal">&times;</button>
+        <div class="header-buttons">
+          <button type="button" class="btn btn-outline" id="toggleVariablesBtn">
+            <span id="toggleVariablesText">📄 Show Variables</span>
+          </button>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
       </div>
       
       <form id="webhookForm">
@@ -187,6 +164,54 @@
           <button type="submit" class="btn btn-primary">Save Webhook</button>
         </div>
       </form>
+    </div>
+    
+    <!-- Variables Modal - Slides in from right -->
+    <div class="variables-modal" id="variablesModal">
+      <div class="variables-modal-header">
+        <h3>Available Variables</h3>
+        <p class="info-text">Click to copy</p>
+      </div>
+      <div class="variables-modal-content">
+        <div class="variables-list">
+          <div class="variable-item" data-var="{page_url}">
+            <code class="var-tag">{page_url}</code>
+            <span class="variable-desc">Full page URL (or clicked link URL)</span>
+          </div>
+          <div class="variable-item" data-var="{page_title}">
+            <code class="var-tag">{page_title}</code>
+            <span class="variable-desc">Page title</span>
+          </div>
+          <div class="variable-item" data-var="{page_domain}">
+            <code class="var-tag">{page_domain}</code>
+            <span class="variable-desc">Page domain</span>
+          </div>
+          <div class="variable-item" data-var="{page_protocol}">
+            <code class="var-tag">{page_protocol}</code>
+            <span class="variable-desc">Protocol (http/https)</span>
+          </div>
+          <div class="variable-item" data-var="{selected_text}">
+            <code class="var-tag">{selected_text}</code>
+            <span class="variable-desc">Currently selected text</span>
+          </div>
+          <div class="variable-item" data-var="{timestamp}">
+            <code class="var-tag">{timestamp}</code>
+            <span class="variable-desc">Unix timestamp (ms)</span>
+          </div>
+          <div class="variable-item" data-var="{date}">
+            <code class="var-tag">{date}</code>
+            <span class="variable-desc">Current date (YYYY-MM-DD)</span>
+          </div>
+          <div class="variable-item" data-var="{time}">
+            <code class="var-tag">{time}</code>
+            <span class="variable-desc">Current time (HH:MM:SS)</span>
+          </div>
+          <div class="variable-item" data-var="{datetime}">
+            <code class="var-tag">{datetime}</code>
+            <span class="variable-desc">ISO 8601 datetime</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

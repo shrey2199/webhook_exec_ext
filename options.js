@@ -57,6 +57,97 @@ function setupEventListeners() {
   // URL preview listeners
   document.getElementById('webhookUrl').addEventListener('input', updateUrlPreview);
   document.getElementById('webhookUrl').addEventListener('change', updateUrlPreview);
+  
+  // Dropdown buttons
+  document.getElementById('backupBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown('backupDropdown');
+  });
+  
+  document.getElementById('restoreBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown('restoreDropdown');
+  });
+  
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', () => {
+    closeAllDropdowns();
+  });
+  
+  // Toggle variables modal button
+  document.getElementById('toggleVariablesBtn').addEventListener('click', () => {
+    toggleVariablesModal();
+  });
+  
+  // Variable tags - copy to clipboard on click
+  document.querySelectorAll('.variables-modal .variable-item').forEach(item => {
+    item.addEventListener('click', async () => {
+      const varName = item.dataset.var;
+      const tag = item.querySelector('.var-tag');
+      try {
+        await navigator.clipboard.writeText(varName);
+        const originalText = tag.textContent;
+        tag.textContent = '✓ Copied!';
+        tag.style.fontWeight = 'bold';
+        tag.style.borderColor = 'var(--primary-color)';
+        tag.style.borderWidth = '2px';
+        setTimeout(() => {
+          tag.textContent = originalText;
+          tag.style.fontWeight = '';
+          tag.style.borderColor = '';
+          tag.style.borderWidth = '';
+        }, 1000);
+      } catch (error) {
+        console.error('Failed to copy:', error);
+      }
+    });
+  });
+  
+  // Backup & Restore buttons
+  document.getElementById('copyJsonBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    copyJsonToClipboard();
+    closeAllDropdowns();
+  });
+  
+  document.getElementById('downloadBackupBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    downloadBackupFile();
+    closeAllDropdowns();
+  });
+  
+  document.getElementById('pasteJsonBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    pasteJsonFromClipboard();
+    closeAllDropdowns();
+  });
+  
+  document.getElementById('uploadBackupBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('backupFileInput').click();
+    closeAllDropdowns();
+  });
+  
+  document.getElementById('backupFileInput').addEventListener('change', uploadBackupFile);
+}
+
+function toggleDropdown(dropdownId) {
+  const dropdown = document.getElementById(dropdownId);
+  const isVisible = dropdown.classList.contains('show');
+  
+  // Close all dropdowns first
+  closeAllDropdowns();
+  
+  // Toggle the clicked one
+  if (!isVisible) {
+    dropdown.classList.add('show');
+  }
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+    dropdown.classList.remove('show');
+  });
 }
 
 function renderWebhooksList() {
@@ -182,6 +273,35 @@ function closeModal() {
   document.getElementById('webhookModal').style.display = 'none';
   document.getElementById('webhookForm').reset();
   editingWebhookId = null;
+  
+  // Reset variables modal state
+  const mainModal = document.getElementById('mainModalContent');
+  const variablesModal = document.getElementById('variablesModal');
+  const toggleBtn = document.getElementById('toggleVariablesText');
+  
+  mainModal.classList.remove('shifted');
+  variablesModal.classList.remove('show');
+  toggleBtn.textContent = '📄 Show Variables';
+}
+
+function toggleVariablesModal() {
+  const mainModal = document.getElementById('mainModalContent');
+  const variablesModal = document.getElementById('variablesModal');
+  const toggleBtn = document.getElementById('toggleVariablesText');
+  
+  const isShowing = variablesModal.classList.contains('show');
+  
+  if (isShowing) {
+    // Hide variables modal
+    mainModal.classList.remove('shifted');
+    variablesModal.classList.remove('show');
+    toggleBtn.textContent = '📄 Show Variables';
+  } else {
+    // Show variables modal
+    mainModal.classList.add('shifted');
+    variablesModal.classList.add('show');
+    toggleBtn.textContent = '✖ Hide Variables';
+  }
 }
 
 function addKeyValuePair(listId, key = '', value = '') {
@@ -487,4 +607,126 @@ function showNotification(message) {
     notification.style.animation = 'slideOutUp 0.3s ease';
     setTimeout(() => notification.remove(), 300);
   }, 3000);
+}
+
+// Backup & Restore Functions
+
+async function copyJsonToClipboard() {
+  try {
+    const data = await chrome.storage.local.get(['webhooks']);
+    const backupData = {
+      webhooks: data.webhooks || [],
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    };
+    
+    await navigator.clipboard.writeText(JSON.stringify(backupData, null, 2));
+    showNotification('✓ JSON copied to clipboard!');
+  } catch (error) {
+    showNotification('✗ Failed to copy JSON: ' + error.message);
+    console.error('Copy error:', error);
+  }
+}
+
+function downloadBackupFile() {
+  chrome.storage.local.get(['webhooks'], (data) => {
+    const backupData = {
+      webhooks: data.webhooks || [],
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    };
+    
+    const jsonString = JSON.stringify(backupData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `webhook-executor-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('✓ Backup file downloaded!');
+  });
+}
+
+async function pasteJsonFromClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    
+    if (!text || text.trim() === '') {
+      showNotification('✗ Clipboard is empty');
+      return;
+    }
+    
+    const backupData = JSON.parse(text);
+    await restoreFromBackup(backupData);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      showNotification('✗ Invalid JSON format in clipboard');
+    } else {
+      showNotification('✗ Failed to paste JSON: ' + error.message);
+    }
+    console.error('Paste error:', error);
+  }
+}
+
+function uploadBackupFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const backupData = JSON.parse(e.target.result);
+      await restoreFromBackup(backupData);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        showNotification('✗ Invalid JSON file format');
+      } else {
+        showNotification('✗ Failed to restore: ' + error.message);
+      }
+      console.error('Upload error:', error);
+    }
+  };
+  
+  reader.readAsText(file);
+  event.target.value = ''; // Reset file input
+}
+
+async function restoreFromBackup(backupData) {
+  // Validate backup data
+  if (!backupData || typeof backupData !== 'object') {
+    throw new Error('Invalid backup data structure');
+  }
+  
+  if (!Array.isArray(backupData.webhooks)) {
+    throw new Error('Backup data does not contain webhooks array');
+  }
+  
+  // Show confirmation dialog
+  const confirmMsg = `This will replace all current webhooks with ${backupData.webhooks.length} webhook(s) from the backup.\n\nExport Date: ${backupData.exportDate || 'Unknown'}\n\nContinue?`;
+  
+  if (!confirm(confirmMsg)) {
+    showNotification('Restore cancelled');
+    return;
+  }
+  
+  try {
+    // Save to storage
+    await chrome.storage.local.set({ webhooks: backupData.webhooks });
+    
+    // Update local state and UI
+    webhooks = backupData.webhooks;
+    renderWebhooksList();
+    
+    // Notify background script to update context menu
+    chrome.runtime.sendMessage({ type: 'WEBHOOKS_UPDATED' });
+    
+    showNotification(`✓ Successfully restored ${webhooks.length} webhook(s)!`);
+  } catch (error) {
+    throw new Error('Failed to save restored data: ' + error.message);
+  }
 }
