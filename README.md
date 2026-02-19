@@ -329,6 +329,8 @@ This extension:
 - Only sends data to URLs you explicitly configure
 - Does not collect or transmit data to third parties
 
+For a complete privacy policy, see [PRIVACY.md](PRIVACY.md).
+
 ## License
 
 Free to use and modify for personal projects.
