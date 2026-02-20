@@ -1,14 +1,13 @@
-<div align="center">
-
-![Webhook Executor Icon](icon48.png)
-
-# Webhook Executor
-
-*A powerful Chrome extension that allows you to set up and execute webhooks with dynamic variables based on the current webpage.*
-
-[![Download](https://img.shields.io/badge/Install%20Now-141e24.svg?&style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAxNmwtNS01aDNWNGg0djdoM2wtNSA1em0tOSAydjJoMTh2LTJIN3oiLz48L3N2Zz4=&logoColor=white)](#installation)
-
-</div>
+<p align="center">
+  <img src="icon48.png" alt="Icon" width="48"><br>
+  <h1 align="center"><b>Webhook Executor</b></h1>
+  </p>
+  <p align="center">
+  <i>A powerful Chrome extension that allows you to set up and execute webhooks with dynamic variables based on the current webpage.</i><br><br>
+  <a href="#installation">
+    <img src="https://img.shields.io/badge/Install%20Now-141e24.svg?&style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAxNmwtNS01aDNWNGg0djdoM2wtNSA1em0tOSAydjJoMTh2LTJIN3oiLz48L3N2Zz4=&logoColor=white" alt="Install">
+  </a>
+</p>
 
 ## Features
 
